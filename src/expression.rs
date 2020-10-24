@@ -3,8 +3,8 @@ use crate::token_type::TokenType;
 
 #[derive(Debug)]
 pub enum Expression {
-    Infix {
-        left: Box<Expression>, op: TokenType, right: Box<Expression>
+    Binary {
+        left: Box<Expression>, operator: TokenType, right: Box<Expression>
     },
     Number(Token),
 }
