@@ -2,8 +2,9 @@ use crate::token_type::TokenType::{self, *};
 
 #[derive(Debug, Clone)]
 pub enum Token {
-    Number(f64),
+    Integer(u64),
     Symbol(TokenType),
+    EndOfFile,
 }
 
 impl Token {
@@ -11,8 +12,9 @@ impl Token {
         use Token::*;
 
         match self {
-            Number(_) => NUMBER,
+            Integer(_) => INTEGER,
             Symbol(token_type) => token_type.clone(),
+            EndOfFile => EOF,
         }
     }
 }

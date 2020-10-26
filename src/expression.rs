@@ -1,10 +1,16 @@
 use crate::token::Token;
-use crate::token_type::TokenType;
 
 #[derive(Debug)]
 pub enum Expression {
-    Binary {
-        left: Box<Expression>, operator: TokenType, right: Box<Expression>
+    Sum {
+        left: Box<Expression>, right: Box<Expression>,
     },
-    Number(Token),
+    Product {
+        left: Box<Expression>, right: Box<Expression>,
+    },
+    Division {
+        left: Box<Expression>, right: Box<Expression>,
+    },
+    Negation(Box<Expression>),
+    Integer(Token),
 }

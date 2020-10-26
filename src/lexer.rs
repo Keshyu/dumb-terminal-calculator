@@ -42,11 +42,13 @@ impl Lexer {
             }
         }
 
+        tokens.push(Token::EndOfFile);
+
         Ok(tokens)
     }
 
     fn lex_token(&mut self) -> Result<Option<Token>> {
-        if self.check_if(|c| { c.is_digit(10) || c == '.' }) {
+        if self.check_if(|c| { c.is_digit(10) }) {
             let token = self.lex_number();
             return Ok(Some(token))
         }
@@ -62,6 +64,12 @@ impl Lexer {
         else if self.eat('/') {
             return Ok(Some(Token::Symbol(DIVIDE)))
         }
+        else if self.eat('(') {
+            return Ok(Some(Token::Symbol(LPAREN)))
+        }
+        else if self.eat(')') {
+            return Ok(Some(Token::Symbol(RPAREN)))
+        }
         else if self.check_if(|c| { c.is_whitespace() }) {
             self.advance();
             return Ok(None);
@@ -76,27 +84,23 @@ impl Lexer {
     fn lex_number(&mut self) -> Token {
         let mut number_string = String::new();
 
-        while self.check_if(|c| { c.is_digit(10) }) {
+        number_string += &*self.record_while(|c| { c.is_digit(10) });
+
+        Token::Integer((&*number_string).parse().unwrap())
+    }
+
+    fn record_while(&mut self, predicate: impl Fn(char) -> bool) -> String {
+        let mut recording = String::new();
+
+        while self.check_if(&predicate) {
             if let Some(c) = self.lookahead {
-                number_string.push(c);
+                recording.push(c);
             }
 
             self.advance();
         }
 
-        if self.eat('.') {
-            number_string.push('.');
-
-            while self.check_if(|c| { c.is_digit(10) }) {
-                if let Some(c) = self.lookahead {
-                    number_string.push(c);
-                }
-    
-                self.advance();
-            }
-        }
-
-        Token::Number((&*number_string).parse().unwrap())
+        recording
     }
 
     fn eat(&mut self, character: char) -> bool {
@@ -141,7 +145,7 @@ impl Lexer {
         let message = format!("Unexpected character: \'{}\'", c);
 
         format!(
-            "| {source}\n| {arrow}\n|\n| - {message}",
+            "| {source}\n| {arrow}\n|\n| {message}",
             source = self.source_string,
             arrow = arrow,
             message = message,

@@ -1,47 +1,55 @@
 use crate::expression::Expression;
+use crate::fraction::Fraction;
 use crate::token::Token;
-use crate::token_type::TokenType::*;
 use std::result;
 
 pub type Result<T> = result::Result<T, String>;
 
-pub fn reduce(tree: Expression) -> Result<f64> {
+pub fn reduce(tree: Expression) -> Result<Fraction> {
     reduce_expression(Box::new(tree))
 }
 
-fn reduce_expression(expression: Box<Expression>) -> Result<f64> {
+fn reduce_expression(expression: Box<Expression>) -> Result<Fraction> {
     use Expression::*;
 
     match *expression {
-        Binary { left, operator, right } => {
+        Sum { left, right } => {
             let left_result = reduce_expression(left)?;
             let right_result = reduce_expression(right)?;
 
-            match operator {
-                PLUS => Ok(left_result + right_result),
-                MINUS => Ok(left_result - right_result),
-                MULTIPLY => Ok(left_result * right_result),
-                DIVIDE => {
-                    if right_result == 0f64 {
-                        Err(format!("Can't divide by 0"))
-                    }
-                    else {
-                        Ok(left_result / right_result)
-                    }
-                }
-                _ => {
-                    panic!("Internal: Can't treat {:?} as an operator", operator);
-                }
-            }
+            let result = left_result + right_result;
+
+            Ok(result)
         }
-        Number(token) => {
-            if let Token::Number(number) = token {
-                Ok(number)
+        Product { left, right } => {
+            let left_result = reduce_expression(left)?;
+            let right_result = reduce_expression(right)?;
+            let result = left_result * right_result;
+
+            Ok(result)
+        }
+        Division { left, right } => {
+            let left_result = reduce_expression(left)?;
+            let right_result = reduce_expression(right)?;
+
+            let result = left_result / right_result;
+
+            Ok(result)
+        }
+        Negation(expression) => {
+            let expression_result = reduce_expression(expression)?;
+
+            Ok(expression_result.negate())
+        }
+        Integer(token) => {
+            use crate::sign::Sign;
+
+            if let Token::Integer(number) = token {
+                Ok(Fraction::new(number, 1, Sign::Positive))
             }
             else {
                 panic!("Internal: Token {:?} is not a number", token)
             }
         }
     }
-
 }
