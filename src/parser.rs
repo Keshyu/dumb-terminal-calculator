@@ -126,9 +126,14 @@ impl Parser {
             Ok(expression)
         }
         else {
-            let integer = self.eat(INTEGER)?;
+            let number_token = self.eat(NUMBER)?;
     
-            Ok(Expression::Integer(integer))
+            if let Token::Number(number) = number_token {
+                Ok(Expression::Number(number))
+            }
+            else {
+                Err("Internal Error".to_owned())
+            }
         }
     }
 

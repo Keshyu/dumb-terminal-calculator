@@ -3,7 +3,7 @@ use gcd::Gcd;
 use std::ops;
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Fraction {
     pub sign: Sign,
     numerator: u64,

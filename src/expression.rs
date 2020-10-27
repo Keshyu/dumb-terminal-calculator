@@ -1,4 +1,4 @@
-use crate::token::Token;
+use crate::fraction::Fraction;
 
 #[derive(Debug)]
 pub enum Expression {
@@ -12,5 +12,5 @@ pub enum Expression {
         left: Box<Expression>, right: Box<Expression>,
     },
     Negation(Box<Expression>),
-    Integer(Token),
+    Number(Fraction),
 }

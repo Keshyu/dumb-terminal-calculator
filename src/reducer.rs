@@ -41,15 +41,8 @@ fn reduce_expression(expression: Box<Expression>) -> Result<Fraction> {
 
             Ok(expression_result.negate())
         }
-        Integer(token) => {
-            use crate::sign::Sign;
-
-            if let Token::Integer(number) = token {
-                Ok(Fraction::new(number, 1, Sign::Positive))
-            }
-            else {
-                panic!("Internal: Token {:?} is not a number", token)
-            }
+        Number(fraction) => {
+            Ok(fraction)
         }
     }
 }

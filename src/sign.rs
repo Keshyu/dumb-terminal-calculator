@@ -1,7 +1,7 @@
 use std::ops;
 use std::fmt;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Sign {
     Positive,
     Negative,

@@ -1,8 +1,9 @@
+use crate::fraction::Fraction;
 use crate::token_type::TokenType::{self, *};
 
 #[derive(Debug, Clone)]
 pub enum Token {
-    Integer(u64),
+    Number(Fraction),
     Symbol(TokenType),
     EndOfFile,
 }
@@ -12,7 +13,7 @@ impl Token {
         use Token::*;
 
         match self {
-            Integer(_) => INTEGER,
+            Number(_) => NUMBER,
             Symbol(token_type) => token_type.clone(),
             EndOfFile => EOF,
         }

@@ -1,5 +1,7 @@
 use crate::token::Token;
 use crate::token_type::TokenType::*;
+use crate::fraction::Fraction;
+use crate::sign::Sign;
 use std::vec::IntoIter;
 use std::result;
 
@@ -49,8 +51,12 @@ impl Lexer {
 
     fn lex_token(&mut self) -> Result<Option<Token>> {
         if self.check_if(|c| { c.is_digit(10) }) {
-            let token = self.lex_number();
-            return Ok(Some(token))
+            let number = self.lex_number();
+            return Ok(Some(Token::Number(number)))
+        }
+        else if self.check('.') {
+            let decimal = self.lex_decimal();
+            return Ok(Some(Token::Number(decimal)))
         }
         else if self.eat('+') {
             return Ok(Some(Token::Symbol(PLUS)))
@@ -81,12 +87,32 @@ impl Lexer {
         }
     }
 
-    fn lex_number(&mut self) -> Token {
-        let mut number_string = String::new();
+    fn lex_number(&mut self) -> Fraction {
+        let integer = {
+            let integer_str = self.record_while(|c| { c.is_digit(10) });
+            Fraction::new(integer_str.parse().unwrap(), 1, Sign::Positive)
+        };
 
-        number_string += &*self.record_while(|c| { c.is_digit(10) });
+        if self.check('.') {
+            let decimal = self.lex_decimal();
+            integer + decimal
+        }
+        else {
+            integer
+        }
+    }
 
-        Token::Integer((&*number_string).parse().unwrap())
+    fn lex_decimal(&mut self) -> Fraction {
+        self.eat('.');
+
+        let decimal_str = self.record_while(|c| { c.is_digit(10) });
+        let denumerator = (10u64).pow(decimal_str.len() as u32);
+        
+        Fraction::new(
+            decimal_str.parse().unwrap(),
+            denumerator,
+            Sign::Positive,
+        )
     }
 
     fn record_while(&mut self, predicate: impl Fn(char) -> bool) -> String {
